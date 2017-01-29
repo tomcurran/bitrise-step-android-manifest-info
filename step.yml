@@ -40,6 +40,6 @@ outputs:
   - AMI_MIN_SDK_VERSION:
     opts:
       title: Minimum SDK Version (minSdkVersion from AndroidManifest.xml)
-  - TARGETSDKVERSION:
+  - AMI_TARGET_SDK_VERSION:
     opts:
       title: Target SDK Version (targetSdkVersion from AndroidManifest.xml)
