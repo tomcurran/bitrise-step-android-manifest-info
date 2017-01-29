@@ -1,58 +1,45 @@
-title: "STEP TEMPLATE"
-summary: A short summary of the step. Don't make it too long ;)
+title: "Android Manifest Info"
+summary: Extracts Android manifest attributes to environment variables.
 description: |-
-  This is a Step template.
-  Contains everything what's required for a valid Stepman managed step.
+  Read Android manifest attriubtes from `AndroidManifest.xml` file,
+  then export that data to environment variables prefixed with **AMI_**.
 
-  A Step's description (and generally any `description` property)
-  can be a [Markdown](https://en.wikipedia.org/wiki/Markdown) formatted text.
-
-  To create your own Step:
-
-  1. Create a new repository on GitHub
-  2. Copy the files from this folder into your repository
-  3. That's all, you can use it on your own machine
-  4. Once you're happy with it you can share it with others.
-website: https://github.com/...
-source_code_url: https://github.com/...
-support_url: https://github.com/.../issues
+  After this you can use these environment variables in other steps.
+website: https://github.com/tomcurran/bitrise-step-android-manifest-info
+source_code_url: https://github.com/tomcurran/bitrise-step-android-manifest-info
+support_url: https://github.com/tomcurran/bitrise-step-android-manifest-info/issues
 host_os_tags:
   - osx-10.10
 project_type_tags:
-  - ios
   - android
   - xamarin
 type_tags:
-  - script
-is_requires_admin_user: true
+  - build
+  - utils
+  - versioning
 is_always_run: false
 is_skippable: false
-deps:
-  brew:
-  - name: git
-  - name: wget
-  apt_get:
-  - name: git
-  - name: wget
-run_if: ""
 inputs:
-  - example_step_input: Default Value - you can leave this empty if you want to
+  - manifest_file: "$BITRISE_ANDROID_MANIFEST_PATH"
     opts:
-      title: "Example Step Input"
-      summary: Summary. No more than 2-3 sentences.
+      title: "AndroidManifest.xml file path"
+      summary: ""
       description: |
-        Description of this input.
-
-        Can be Markdown formatted text.
-      is_expand: true
+        Path to the given project's AndroidManifest.xml file.
       is_required: true
-      value_options: []
 outputs:
-  - EXAMPLE_STEP_OUTPUT:
+  - AMI_VERSION_CODE:
     opts:
-      title: "Example Step Output"
-      summary: Summary. No more than 2-3 sentences.
-      description: |
-        Description of this output.
-
-        Can be Markdown formatted text.
+      title: Version Code (versionCode from AndroidManifest.xml)
+  - AMI_VERSION_NAME:
+    opts:
+      title: Version Name (versionName from AndroidManifest.xml)
+  - AMI_PACKAGE_NAME:
+    opts:
+      title: Package Name (package from AndroidManifest.xml)
+  - AMI_MIN_SDK_VERSION:
+    opts:
+      title: Minimum SDK Version (minSdkVersion from AndroidManifest.xml)
+  - TARGETSDKVERSION:
+    opts:
+      title: Target SDK Version (targetSdkVersion from AndroidManifest.xml)

@@ -1,21 +1,68 @@
 #!/bin/bash
 
-echo "This is the value specified for the input 'example_step_input': ${example_step_input}"
+# exit if a command fails
+set -e
 
 #
-# --- Export Environment Variables for other Steps:
-# You can export Environment Variables for other Steps with
-#  envman, which is automatically installed by `bitrise setup`.
-# A very simple example:
-#  envman add --key EXAMPLE_STEP_OUTPUT --value 'the value you want to share'
-# Envman can handle piped inputs, which is useful if the text you want to
-# share is complex and you don't want to deal with proper bash escaping:
-#  cat file_with_complex_input | envman add --KEY EXAMPLE_STEP_OUTPUT
-# You can find more usage examples on envman's GitHub page
-#  at: https://github.com/bitrise-io/envman
+# Required parameters
+if [ -z "${manifest_file}" ] ; then
+  echo " [!] Missing required input: manifest_file"
+  exit 1
+fi
+if [ ! -f "${manifest_file}" ] ; then
+  echo " [!] File doesn't exist at specified AndroidManifest.xml path: ${manifest_file}"
+  exit 1
+fi
 
-#
-# --- Exit codes:
-# The exit code of your Step is very important. If you return
-#  with a 0 exit code `bitrise` will register your Step as "successful".
-# Any non zero exit code will be registered as "failed" by `bitrise`.
+# ---------------------
+# --- Configs:
+
+echo " (i) Provided Android Manifest path: ${manifest_file}"
+echo
+
+# ---------------------
+# --- Main
+
+VERSIONCODE=`grep versionCode ${manifest_file} | sed 's/.*versionCode="//;s/".*//'`
+VERSIONNAME=`grep versionName ${manifest_file} | sed 's/.*versionName\s*=\s*\"\([^\"]*\)\".*/\1/g'`
+PACKAGENAME=`grep package ${manifest_file} | sed 's/.*package\s*=\s*\"\([^\"]*\)\".*/\1/g'`
+MINSDKVERSION=`grep minSdkVersion ${manifest_file} | sed 's/.*minSdkVersion="//;s/".*//'`
+TARGETSDKVERSION=`grep targetSdkVersion ${manifest_file} | sed 's/.*targetSdkVersion="//;s/".*//'`
+
+if [ -z "${VERSIONCODE}" ] ; then
+  echo " [!] Could not find version code!"
+  exit 1
+fi
+
+envman add --key AMI_VERSION_CODE --value "${VERSIONCODE}"
+echo " (i) Version Code: ${VERSIONCODE} -> Saved to \$AMI_VERSION_CODE environment variable."
+
+if [ -z "${VERSIONNAME}" ] ; then
+  echo " [!] Could not find version name!"
+  exit 1
+fi
+
+envman add --key AMI_VERSION_NAME --value "${VERSIONNAME}"
+echo " (i) Version Name: ${VERSIONNAME} -> Saved to \$AMI_VERSION_NAME environment variable."
+
+if [ -z "${PACKAGENAME}" ] ; then
+  echo " [!] Could not find package name!"
+  exit 1
+fi
+
+envman add --key AMI_PACKAGE_NAME --value "${PACKAGENAME}"
+echo " (i) Package Name: ${PACKAGENAME} -> Saved to \$AMI_PACKAGE_NAME environment variable."
+
+if [ -z "${MINSDKVERSION}" ] ; then
+  echo " No minimum SDK version found in manifest"
+else
+  envman add --key AMI_MIN_SDK_VERSION --value "${MINSDKVERSION}"
+  echo " (i) Minimum SDK version: ${MINSDKVERSION} -> Saved to \$AMI_MIN_SDK_VERSION environment variable."
+fi
+
+if [ -z "${TARGETSDKVERSION}" ] ; then
+  echo " No target SDK version found in manifest"
+else
+  envman add --key AMI_TARGET_SDK_VERSION --value "${TARGETSDKVERSION}"
+  echo " (i) Target SDK version: ${TARGETSDKVERSION} -> Saved to \$AMI_TARGET_SDK_VERSION environment variable."
+fi
